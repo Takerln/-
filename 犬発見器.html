@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>わんちゃん</title>
+</head>
+<body>
+    <h1>わんちゃん発見</h1>
+    <button id="DogButton">新たなわんちゃんを発見</button>
+    <div id="dog-up"></div>
+</body>
+
+<script>
+    DogAPIURL = "https://dog.ceo/api/breeds/image/random";
+
+    DogButton = document.getElementById("DogButton");
+    DogButton.addEventListener("click", FetchAndDisplayDog);
+
+    function FetchAndDisplayDog(){
+    fetch(DogAPIURL)
+        .then(Response => Response.json())
+        .then(data => {
+            DisplayDog(data);
+        })
+        .catch(error => {
+            console.error("エラー", error);
+        })
+    }
+
+    function DisplayDog(data){
+        ImageURL = data.message;
+        DogImage = document.createElement('img')
+        DogImage.src = ImageURL;
+        DogImage.alt = 'いぬのがぞう';
+
+        BreedName = data.message.split('/')[4];
+        DogName = document.createElement('h2');
+        DogName.textContent = BreedName;
+
+        up = document.getElementById('dog-up');
+
+        /* これでボタンを押すたびにまえの犬がきえる */
+        up.innerHTML = "";
+
+        up.appendChild(DogName);
+        up.appendChild(DogImage);
+    }
+</script>
+</html>
