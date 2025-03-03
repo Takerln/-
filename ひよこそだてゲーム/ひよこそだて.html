@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ひよこゲーム</title>
+<style>
+  #game-container { display: flex; flex-direction: column; align-items: center; }
+  img { width: 200px; height: 200px; }
+  button { margin: 10px; padding: 8px 16px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+  #reset-button { margin-top: 20px; background-color: #f44336; }
+</style>
+</head>
+<body>
+<div id="game-container">
+  <img id="game-image" src="egg.png" alt="ゲーム画像">
+  <div id="message">卵をにわとりまで育てよう</div>
+  <div id="buttons"></div>
+  <button id="reset-button" onclick="resetGame()">最初に戻る</button>
+</div>
+
+<script>
+const gameStates = {
+  1: { image: "egg.png", message: "卵をにわとりまで育てよう", buttons: [
+    { text: "あたためる", action: "nextStage" },
+    { text: "冷やす", action: "gameOver", image: "ice.png", message: "ゲームオーバー！冷たすぎました" },
+    { text: "握る", action: "gameOver", image: "broken_egg.png", message: "ゲームオーバー！壊してしまいました" }
+  ]},
+  2: { image: "chick.png", message: "ひよこになりました！", buttons: [
+    { text: "えさ", action: "nextStage" },
+    { text: "ペンキ", action: "gameOver", image: "pink_bird.png", message: "ゲームオーバー！色が変わりすぎました" },
+    { text: "謎の薬", action: "gameOver", image: "dog.png", message: "ゲームオーバー！犬になってしまいました" }
+  ]},
+  3: { image: "chicken.png", message: "おめでとう！にわとりになりました", buttons: [] }
+};
+
+let stage = 1;
+let isGameOver = false;
+
+function updateGameState() {
+  const state = gameStates[stage];
+  document.getElementById('game-image').src = state.image;
+  document.getElementById('message').innerText = state.message;
+  document.getElementById('buttons').innerHTML = isGameOver ? "" : state.buttons.map(btn => 
+    `<button onclick="${btn.action}('${btn.image || ''}', '${btn.message || ''}')">${btn.text}</button>`
+  ).join('');
+  document.cookie = `gameState=${stage},${isGameOver};path=/;max-age=31536000`;
+}
+
+function nextStage() {
+  if (stage < 3) stage++;
+  updateGameState();
+}
+
+function gameOver(image, message) {
+  document.getElementById('game-image').src = image;
+  document.getElementById('message').innerText = message;
+  document.getElementById('buttons').innerHTML = "";
+  isGameOver = true;
+  document.cookie = `gameState=${stage},${isGameOver};path=/;max-age=31536000`;
+}
+
+function resetGame() {
+  stage = 1;
+  isGameOver = false;
+  updateGameState();
+}
+
+function loadGameState() {
+  const cookie = document.cookie.split('; ').find(row => row.startsWith('gameState='));
+  if (cookie) {
+    [stage, isGameOver] = cookie.split('=')[1].split(',');
+    stage = parseInt(stage);
+    isGameOver = isGameOver === 'true';
+  }
+  updateGameState();
+}
+
+window.onload = loadGameState;
+</script>
+</body>
+</html>
